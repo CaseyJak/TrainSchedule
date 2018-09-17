@@ -155,12 +155,14 @@
 
     
 // train calculations variables
-        let timeDiff = moment().diff(moment(snapshot.val().time, "minutes"));
+        let timeDiff = moment().diff(moment(snapshot.val().time, "minutes"), "minutes");
         let remainder = timeDiff % (snapshot.val().frequency);
 
     //math for minutes left and arrival time
         minutes = (snapshot.val().frequency) - remainder
         arrival = moment().add(minutes, "m").format("hh:mm A");
+
+console.log(moment());
 
       // Change the HTML to reflect
         $(".table").append(`
