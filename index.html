@@ -25,7 +25,7 @@
 
     <div class="row">
         
-      <!-- Most Recent Member card -->
+      <!-- Train card -->
         <div>
             <div class="card card-default">
                 <div class="card-header">
@@ -153,10 +153,12 @@
         console.log(snapshot.val().frequency);
         console.log(snapshot.val().time);
 
-
-
+    
+// train calculations variables
         let timeDiff = moment().diff(moment(snapshot.val().time, "minutes"));
         let remainder = timeDiff % (snapshot.val().frequency);
+
+    //math for minutes left and arrival time
         minutes = (snapshot.val().frequency) - remainder
         arrival = moment().add(minutes, "m").format("hh:mm A");
 
