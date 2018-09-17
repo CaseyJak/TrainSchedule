@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+
+<head>
+
+  <meta charset="UTF-8">
+  <title>Train Schedule</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <script src="http://momentjs.com/downloads/moment.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.5.0/firebase.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <br>
+
+    <!-- Jumbotron -->
+    <div class="jumbotron">
+      <h1 class="text-center">Train Schedule</h1>
+    </div>
+
+    <div class="row">
+        
+      <!-- Most Recent Member card -->
+        <div>
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3>Current Train Schedule</h3>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Train Name</th>
+                            <th scope="col">Destination</th>
+                            <th scope="col">Frequency (hh:mm)</th>
+                            <th scope="col">Next Arrival</th>
+                            <th scope="col">Minutes Away</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"></th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+    </div>
+    
+</div>
+
+
+      <!-- Add Train -->
+      <div class="col-lg-6">
+        <div class="card card-default">
+          <div class="card-header">
+            Add Train
+          </div>
+          <div class="card-body">
+
+            <!-- Add Train Form -->
+
+            <form role="form">
+                <div class="form-group row">
+                    <label for="name-input">Train Name</label>
+                    <input class="form-control" id="name-input" type="text">
+                </div>
+                <div class="form-group row">
+                    <label for="destination-input">Destination</label>
+                    <input class="form-control" id="destination-input" type="text">
+                </div>
+                <div class="form-group row">
+                    <label for="time-input">First Train Time</label>
+                    <input class="form-control" id="time-input" type="time">
+                </div>
+                <div class="form-group row">
+                    <label for="frequency-input">Frequency (min)</label>
+                    <input class="form-control" id="frequency-input" type="number">
+                </div>
+                <button class="btn btn-default" id="add-user" type="submit">Submit</button>          
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+
+</body>
+
+<script>        var config = {
+    apiKey: "AIzaSyAOVRR7jLucuRytseXDDdNSLXwrpyNS6vE",
+    authDomain: "employeedatamanagement-8ca4b.firebaseapp.com",
+    databaseURL: "https://employeedatamanagement-8ca4b.firebaseio.com",
+    projectId: "employeedatamanagement-8ca4b",
+    storageBucket: "employeedatamanagement-8ca4b.appspot.com",
+    messagingSenderId: "524971099128"
+  };
+  firebase.initializeApp(config);
+
+    // Create a variable to reference the database.
+    var database = firebase.database();
+
+    // Initial Values
+    var name = "";
+    var destination = "";
+    var frequency = 0;
+    let time = "";
+    let minutes = 0;
+    let arrival = "";
+
+    // Capture Button Click
+    $("#add-user").on("click", function(event) {
+        event.preventDefault();
+
+      // Grabbed values from text-boxes
+        name = $("#name-input").val().trim();
+        destination = $("#destination-input").val().trim();
+        frequency = $("#frequency-input").val().trim();
+        time = $("#time-input").val().trim();
+
+
+        
+
+
+
+      // Code for "Setting values in the database"
+        database.ref("/trains").push({
+            name: name,
+            destination: destination,
+            frequency: frequency,
+            time: time,
+        });
+
+    });
+
+    // Firebase watcher + initial loader HINT: .on("value")
+    database.ref("/trains").on("child_added", function(snapshot) {
+
+      // Log everything that's coming out of snapshot
+        console.log(snapshot.val());
+        console.log(snapshot.val().name);
+        console.log(snapshot.val().destination);
+        console.log(snapshot.val().frequency);
+        console.log(snapshot.val().time);
+
+
+
+        let timeDiff = moment().diff(moment(snapshot.val().time, "minutes"));
+        let remainder = timeDiff % (snapshot.val().frequency);
+        minutes = (snapshot.val().frequency) - remainder
+        arrival = moment().add(minutes, "m").format("hh:mm A");
+
+      // Change the HTML to reflect
+        $(".table").append(`
+             <tr>
+             <th scope="row">${snapshot.val().name}</th>
+             <td>${snapshot.val().destination}</td>
+             <td>${snapshot.val().frequency}</td>
+             <td>${arrival}</td>
+             <td>${minutes}</td>
+             <td></td>
+            </tr>
+     `  );
+
+             console.log("timeDiff:  " + timeDiff);
+        console.log("remainder:  " + remainder);
+        console.log("minutes:  " + minutes);
+        console.log("arrival:  " + arrival);
+
+      // Handle the errors
+    }, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+    });</script>
+
+</html>
